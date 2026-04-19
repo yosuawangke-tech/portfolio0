@@ -291,7 +291,7 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-            pointer-events: auto;
+            pointer-events: none;
         }
 
         /* ── Vignette over Spline ── */
@@ -1264,6 +1264,12 @@
                 gap: var(--space-xl);
             }
 
+            .bento-card {
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+                background: rgba(8, 12, 18, 0.98);
+            }
+
             .about-visual {
                 height: 240px;
             }
@@ -1779,9 +1785,9 @@
                 draw() {
                     ctx.save();
                     ctx.globalAlpha = this.opacity;
-                    /* Sedikit blur visual dengan shadowBlur */
-                    ctx.shadowBlur = 6;
-                    ctx.shadowColor = `rgba(${this.color},0.6)`;
+                    /* Blur dimatikan untuk performa mobile yang jauh lebih baik */
+                    /* ctx.shadowBlur = 6;
+                    ctx.shadowColor = `rgba(${this.color},0.6)`; */
                     ctx.fillStyle = `rgba(${this.color},1)`;
                     ctx.beginPath();
                     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
