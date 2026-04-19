@@ -21,8 +21,6 @@
         href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@300;400;500&display=swap"
         rel="stylesheet" />
 
-    <!-- ── Spline 3D Viewer ── -->
-    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.76/build/spline-viewer.js"></script>
 
     <style>
         /* ═══════════════════════════════════════════════════════════════
@@ -82,31 +80,13 @@
         }
 
         body {
-            background: var(--bg-primary);
+            background: radial-gradient(circle at top, #0a0a1f 0%, var(--bg-primary) 70%);
             color: var(--text-primary);
             font-family: var(--font-body);
             font-weight: 300;
             letter-spacing: 0.04em;
             overflow-x: hidden;
             line-height: 1.7;
-        }
-
-        /* ══════════════════════════════════════════════════════════
-       LAYER 1 — CYBER-INDUSTRIAL GRID (40px × 40px)
-       Posisi paling belakang, sangat samar, fixed agar tidak
-       bergeser saat scroll.
-    ══════════════════════════════════════════════════════════ */
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background-image:
-                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-            pointer-events: none;
-            z-index: -1;
-            /* paling belakang dari semua layer */
         }
 
         /* ══════════════════════════════════════════════════════════
@@ -133,77 +113,33 @@
             position: fixed;
             width: 400px;
             height: 400px;
-            border-radius: 50%;
             pointer-events: none;
-            filter: blur(150px);
+            /* filter: blur(150px); -- Dihapus karena sangat memberatkan GPU HP */
             z-index: 1;
         }
 
         #ambient-tl {
             top: -120px;
             left: -120px;
-            background: rgba(0, 209, 255, 0.05);
-            /* neon biru, sangat redup */
+            /* Diganti radial-gradient murni agar super ringan */
+            background: radial-gradient(circle, rgba(0, 209, 255, 0.08) 0%, transparent 60%);
         }
 
         #ambient-br {
             bottom: -120px;
             right: -120px;
-            background: rgba(188, 0, 255, 0.05);
-            /* cyber purple, sangat redup */
+            background: radial-gradient(circle, rgba(188, 0, 255, 0.08) 0%, transparent 60%);
         }
 
         /* ── Film Grain / Noise Overlay ── */
+        /* Fitur ini dimatikan total karena animasi noise SVG sangat membebani HP murah */
         body::after {
-            content: '';
-            position: fixed;
-            inset: -50%;
-            width: 200%;
-            height: 200%;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
-            opacity: var(--noise-opacity);
-            pointer-events: none;
-            z-index: 9999;
-            animation: grainShift 0.4s steps(1) infinite;
-        }
-
-        @keyframes grainShift {
-            0% {
-                transform: translate(0, 0);
-            }
-
-            25% {
-                transform: translate(-2%, -1%);
-            }
-
-            50% {
-                transform: translate(1%, 2%);
-            }
-
-            75% {
-                transform: translate(-1%, 1%);
-            }
-
-            100% {
-                transform: translate(2%, -2%);
-            }
+            display: none;
         }
 
         /* ── Cursor: menggunakan default browser cursor ── */
 
-        /* ══════════════════════════════════════════════════════════
-       LAYER 2 — CANVAS PARTIKEL (Ambient Dust)
-       Di atas grid, di bawah konten utama.
-    ══════════════════════════════════════════════════════════ */
-        #particle-canvas {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            /* tidak menghalangi klik apapun */
-            z-index: 0;
-        }
+
 
         /* ═══════════════════════════════════════════════════════════════
        NAV
@@ -292,6 +228,8 @@
             height: 100%;
             z-index: 1;
             pointer-events: none;
+            /* Efek fade-in agar tidak mendadak memberatkan render */
+            animation: fadeIn 3s ease 0.5s both;
         }
 
         /* ── Vignette over Spline ── */
@@ -1270,6 +1208,8 @@
                 background: rgba(8, 12, 18, 0.98);
             }
 
+
+
             .about-visual {
                 height: 240px;
             }
@@ -1346,14 +1286,9 @@
 
     <!-- ══════════════════════════════════════════════
        BACKGROUND LAYERS (pointer-events: none on all)
-       Layer 1: CSS Grid (body::before)
-       Layer 2: Canvas Partikel
        Layer 3: Vignette Overlay
        Layer 4: Ambient Glow Corners
   ══════════════════════════════════════════════ -->
-
-    <!-- Layer 2: Particle Canvas -->
-    <canvas id="particle-canvas" aria-hidden="true"></canvas>
 
     <!-- Layer 3: Vignette -->
     <div id="vignette-overlay" aria-hidden="true"></div>
@@ -1382,13 +1317,12 @@
 
         <!--
       3D SPLINE INTEGRATION
-      Replace the URL below with your own published Spline scene.
-      Recommended scene: futuristic robot / cyber head facing slight right
-      to complement the left "NEO" text.
+      Ditambahkan kembali sesuai permintaan.
+      Memakai loading="lazy" agar teks dan layout bisa dirender terlebih dahulu dengan cepat.
     -->
         <iframe class="spline-iframe"
-            src="https://my.spline.design/nexbotrobotcharacterconcept-T5zNco8NwGQE2MvCUhOl7i5D/"
-            frameborder="0"></iframe>
+            src="https://my.spline.design/nexbotrobotcharacterconcept-T5zNco8NwGQE2MvCUhOl7i5D/" frameborder="0"
+            loading="lazy" title="3D Cyber Robot"></iframe>
 
         <!-- Vignette overlay -->
         <div class="hero-vignette" aria-hidden="true"></div>
@@ -1690,123 +1624,7 @@
        JAVASCRIPT — Interactions & Animations
   ══════════════════════════════════════════════ -->
     <script>
-        /* ─── 1. AMBIENT PARTICLE SYSTEM ────────────────────────────────
-           Menggunakan Canvas API + requestAnimationFrame untuk performa
-           optimal. Partikel mengambang ke atas dengan kecepatan acak
-           dan bereaksi terhadap posisi mouse (mouse repulsion).
-        ──────────────────────────────────────────────────────────────── */
-        (() => {
-            const canvas = document.getElementById('particle-canvas');
-            const ctx = canvas.getContext('2d');
 
-            /* ── Konfigurasi partikel ── */
-            const CONFIG = {
-                COUNT: 65,       // jumlah partikel (50–80, ringan)
-                SIZE_MIN: 0.8,      // radius minimum px
-                SIZE_MAX: 2.0,      // radius maksimum px
-                SPEED_MIN: 0.08,     // kecepatan naik minimum
-                SPEED_MAX: 0.35,     // kecepatan naik maksimum
-                DRIFT_MAX: 0.15,     // drift horizontal ringan
-                OPACITY_MIN: 0.12,     // opasitas minimum
-                OPACITY_MAX: 0.45,     // opasitas maksimum
-                REPULSE_RADIUS: 120,      // jarak deteksi mouse (px)
-                REPULSE_FORCE: 1.8,      // kekuatan dorongan
-                COLOR_BLUE: '0,209,255',
-                COLOR_PURPLE: '188,0,255',
-            };
-
-            /* ── Ukuran canvas mengikuti window ── */
-            let W = 0, H = 0;
-            function resize() {
-                W = canvas.width = window.innerWidth;
-                H = canvas.height = window.innerHeight;
-            }
-            resize();
-            window.addEventListener('resize', resize, { passive: true });
-
-            /* ── Posisi mouse global ── */
-            let mouseX = -9999, mouseY = -9999;
-            window.addEventListener('mousemove', e => {
-                mouseX = e.clientX;
-                mouseY = e.clientY;
-            }, { passive: true });
-            window.addEventListener('mouseleave', () => {
-                mouseX = -9999;
-                mouseY = -9999;
-            });
-
-            /* ── Kelas Partikel ── */
-            class Particle {
-                constructor() { this.reset(true); }
-
-                reset(initial = false) {
-                    this.x = Math.random() * W;
-                    // Jika initial, sebar di seluruh layar; jika respawn, mulai dari bawah
-                    this.y = initial ? Math.random() * H : H + 10;
-                    this.size = CONFIG.SIZE_MIN + Math.random() * (CONFIG.SIZE_MAX - CONFIG.SIZE_MIN);
-                    this.speedY = CONFIG.SPEED_MIN + Math.random() * (CONFIG.SPEED_MAX - CONFIG.SPEED_MIN);
-                    this.driftX = (Math.random() - 0.5) * CONFIG.DRIFT_MAX;
-                    this.opacity = CONFIG.OPACITY_MIN + Math.random() * (CONFIG.OPACITY_MAX - CONFIG.OPACITY_MIN);
-                    // Acak warna: biru atau ungu
-                    this.color = Math.random() > 0.6 ? CONFIG.COLOR_PURPLE : CONFIG.COLOR_BLUE;
-                    // Offset velocity saat direpulse
-                    this.vx = 0;
-                    this.vy = 0;
-                }
-
-                update() {
-                    /* ── Mouse repulsion ── */
-                    const dx = this.x - mouseX;
-                    const dy = this.y - mouseY;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-
-                    if (dist < CONFIG.REPULSE_RADIUS && dist > 0) {
-                        const force = (CONFIG.REPULSE_RADIUS - dist) / CONFIG.REPULSE_RADIUS;
-                        const angle = Math.atan2(dy, dx);
-                        this.vx += Math.cos(angle) * force * CONFIG.REPULSE_FORCE;
-                        this.vy += Math.sin(angle) * force * CONFIG.REPULSE_FORCE;
-                    }
-
-                    /* ── Damping: velocity kembali ke 0 perlahan ── */
-                    this.vx *= 0.92;
-                    this.vy *= 0.92;
-
-                    /* ── Gerak utama: naik + drift horizontal ── */
-                    this.x += this.driftX + this.vx;
-                    this.y -= this.speedY;
-                    this.y += this.vy;
-
-                    /* ── Respawn jika keluar dari viewport ── */
-                    if (this.y < -10 || this.x < -20 || this.x > W + 20) {
-                        this.reset();
-                    }
-                }
-
-                draw() {
-                    ctx.save();
-                    ctx.globalAlpha = this.opacity;
-                    /* Blur dimatikan untuk performa mobile yang jauh lebih baik */
-                    /* ctx.shadowBlur = 6;
-                    ctx.shadowColor = `rgba(${this.color},0.6)`; */
-                    ctx.fillStyle = `rgba(${this.color},1)`;
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.restore();
-                }
-            }
-
-            /* ── Inisialisasi semua partikel ── */
-            const particles = Array.from({ length: CONFIG.COUNT }, () => new Particle());
-
-            /* ── Loop animasi utama (requestAnimationFrame) ── */
-            function animate() {
-                ctx.clearRect(0, 0, W, H);
-                particles.forEach(p => { p.update(); p.draw(); });
-                requestAnimationFrame(animate);
-            }
-            animate();
-        })();
 
         /* ─── 2. SCROLL REVEAL — IntersectionObserver ──────────────── */
         (() => {
